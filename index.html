@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Conta os Bichinhos</title>
+
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#7ab8ff" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Conta" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+
+    <link rel="apple-touch-startup-image" href="splash-1170x2532.png"
+          media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="rotate-hint">
+      <p>Rotate the device to landscape 🪥</p>
+    </div>
+    <div id="start-screen" aria-label="Tap to begin">
+      <div class="start-cue">TAP!</div>
+    </div>
+    <main id="stage" aria-label="Counting scene" hidden>
+      <div class="bathroom-bg"></div>
+      <div class="tooth" aria-hidden="true"></div>
+      <div class="drain" aria-hidden="true"></div>
+      <div class="brush" aria-hidden="true"></div>
+      <div class="bug-layer"></div>
+      <div class="numeral-layer" aria-hidden="true"></div>
+      <div class="celebration" hidden></div>
+      <div class="finale" hidden></div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

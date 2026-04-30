@@ -1,0 +1,21 @@
+{
+  "name": "conta-os-bichinhos",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && cp -R assets dist/",
+    "preview": "vite preview --host",
+    "voiceover:generate": "node scripts/generate-voiceover.mjs",
+    "icons:make": "node scripts/make-icons.mjs",
+    "test": "node --test $(find tests/unit -name '*.test.js' | sort)",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "dotenv": "^16.4.5",
+    "sharp": "^0.33.5",
+    "vite": "^5.4.10"
+  }
+}
