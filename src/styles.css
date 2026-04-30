@@ -1,0 +1,241 @@
+:root {
+  --bg: #cfe7ff;
+  --tile: #e8f3ff;
+  --tooth: #fffafa;
+  --tooth-shadow: #d6dee8;
+  --drain: #6f7d92;
+  --brush: #6dbf63;
+  --n-1: #e74c3c;
+  --n-2: #f39c12;
+  --n-3: #f1c40f;
+  --n-4: #2ecc71;
+  --n-5: #1abc9c;
+  --n-6: #3498db;
+  --n-7: #5e60ce;
+  --n-8: #9b59b6;
+  --n-9: #e91e63;
+  --n-10: #d4af37;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: -apple-system, "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+#rotate-hint {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--bg);
+  color: #2c3e50;
+  font-size: 1.4rem;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+@media (orientation: portrait) {
+  #rotate-hint { display: flex; }
+  #stage, #start-screen { display: none !important; }
+}
+
+#start-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+}
+.start-cue {
+  font-size: 18vmin;
+  font-weight: 900;
+  color: #2c3e50;
+  letter-spacing: 0.05em;
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+#stage {
+  position: fixed; inset: 0;
+  display: block;
+}
+
+.bathroom-bg {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg, var(--tile) 0 24px, #d8e9fb 24px 26px),
+    repeating-linear-gradient(90deg, var(--tile) 0 24px, #d8e9fb 24px 26px);
+  background-blend-mode: multiply;
+  z-index: 0;
+}
+
+.tooth {
+  position: absolute;
+  left: 10%; top: 8%;
+  width: 80%; height: 70%;
+  background: var(--tooth);
+  border-radius: 32% 32% 28% 28% / 30% 30% 35% 35%;
+  box-shadow: inset 0 -16px 32px var(--tooth-shadow), 0 12px 24px rgba(0,0,0,0.12);
+  z-index: 1;
+}
+.tooth::before, .tooth::after { /* eyes */
+  content: "";
+  position: absolute;
+  width: 6%; height: 4%;
+  background: #2c3e50;
+  border-radius: 50%;
+  top: 35%;
+}
+.tooth::before { left: 30%; }
+.tooth::after  { left: 64%; }
+
+.drain {
+  position: absolute;
+  left: 45%; bottom: 5%;
+  width: 10%; height: 6%;
+  background: radial-gradient(circle, #2c3e50 30%, var(--drain) 70%);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.brush {
+  position: absolute;
+  right: 4%; top: 30%;
+  width: 6%; height: 38%;
+  background: linear-gradient(180deg, #fff 0 22%, var(--brush) 22% 100%);
+  border-radius: 14px;
+  transform-origin: 50% 100%;
+  z-index: 3;
+}
+.brush.wiggle {
+  animation: wiggle 0.4s ease-in-out;
+}
+@keyframes wiggle {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-12deg); }
+  75%  { transform: rotate(12deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.bug-layer {
+  position: absolute;
+  /* matches .tooth bounds so bug.x/y normalized coords map cleanly */
+  left: 10%; top: 8%; width: 80%; height: 70%;
+  z-index: 4;
+}
+.bug {
+  position: absolute;
+  width: 11%; height: 13%;
+  border: none;
+  background: radial-gradient(circle at 35% 30%, #ff8a8a, #c0392b);
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  animation: bug-bob 1.6s ease-in-out infinite;
+  outline: none;
+  padding: 0;
+}
+.bug.bug-b { background: radial-gradient(circle at 35% 30%, #a3eaa3, #2ecc71); }
+.bug.bug-c { background: radial-gradient(circle at 35% 30%, #ffe082, #f39c12); }
+.bug::before, .bug::after { /* eyes */
+  content: "";
+  position: absolute;
+  width: 22%; height: 22%;
+  background: #fff;
+  border-radius: 50%;
+  top: 28%;
+}
+.bug::before { left: 22%; }
+.bug::after  { left: 56%; }
+.bug.popped {
+  animation: bug-slide 0.6s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  pointer-events: none;
+}
+@keyframes bug-bob {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50%      { transform: translate(-50%, calc(-50% - 6px)); }
+}
+@keyframes bug-slide {
+  0%   { opacity: 1; }
+  60%  { transform: translate(-50%, 60vh) scale(0.6); opacity: 0.6; }
+  100% { transform: translate(-50%, 90vh) scale(0.2); opacity: 0; }
+}
+
+.numeral-layer {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+.numeral {
+  position: absolute;
+  font-size: 14vmin;
+  font-weight: 900;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  text-shadow: 0 4px 0 rgba(0,0,0,0.18);
+  animation: numeral-float 0.9s ease-out forwards;
+  -webkit-text-stroke: 4px #fff;
+}
+.numeral.n-1  { color: var(--n-1); }
+.numeral.n-2  { color: var(--n-2); }
+.numeral.n-3  { color: var(--n-3); }
+.numeral.n-4  { color: var(--n-4); }
+.numeral.n-5  { color: var(--n-5); }
+.numeral.n-6  { color: var(--n-6); }
+.numeral.n-7  { color: var(--n-7); }
+.numeral.n-8  { color: var(--n-8); }
+.numeral.n-9  { color: var(--n-9); }
+.numeral.n-10 { color: var(--n-10); }
+
+@keyframes numeral-float {
+  0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  20%  { transform: translate(-50%, -70%) scale(1.4); opacity: 1; }
+  60%  { transform: translate(-50%, -130%) scale(1.0); opacity: 1; }
+  100% { transform: translate(-50%, -180%) scale(0.9); opacity: 0; }
+}
+
+.celebration, .finale {
+  position: absolute; inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.celebration {
+  background: radial-gradient(circle at center, rgba(255,255,255,0.4), transparent 60%);
+}
+.finale {
+  background: rgba(255,255,255,0.5);
+}
+.finale .squad {
+  display: flex; gap: 2vw;
+  position: absolute; bottom: 8%; left: 0; right: 0;
+  justify-content: center;
+  align-items: flex-end;
+}
+.squad-member {
+  width: 16%;
+  max-height: 30vh;
+  object-fit: contain;
+  animation: squad-bob 1s ease-in-out infinite;
+}
+.squad-member:nth-child(2) { animation-delay: 0.1s; }
+.squad-member:nth-child(3) { animation-delay: 0.2s; }
+.squad-member:nth-child(4) { animation-delay: 0.3s; }
+.squad-member:nth-child(5) { animation-delay: 0.4s; }
+@keyframes squad-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+.finale-numerals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
