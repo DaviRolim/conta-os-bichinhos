@@ -3,20 +3,31 @@ import assert from "node:assert/strict";
 import { createGame } from "../../src/game.js";
 
 const MINI_ROUNDS = [
-  { n: 1, bugs: [{ id: "r1-b1", variant: "A", x: 0.5, y: 0.5 }] },
+  {
+    n: 1,
+    count: 1,
+    animal: "turtle",
+    label: "Turtle",
+    sprite: "assets/images/turtle.png",
+    targets: [{ id: "r1-turtle-1", x: 0.5, y: 0.5, scale: 1, flip: false, rotate: 0 }]
+  },
   {
     n: 2,
-    bugs: [
-      { id: "r2-b1", variant: "A", x: 0.3, y: 0.5 },
-      { id: "r2-b2", variant: "B", x: 0.7, y: 0.5 }
+    count: 2,
+    animal: "dolphin",
+    label: "Dolphin",
+    sprite: "assets/images/dolphin.png",
+    targets: [
+      { id: "r2-dolphin-1", x: 0.35, y: 0.5, scale: 1, flip: false, rotate: -4 },
+      { id: "r2-dolphin-2", x: 0.65, y: 0.5, scale: 1, flip: true, rotate: 4 }
     ]
   }
 ];
 
 function listen(game) {
   const events = [];
-  for (const type of ["round-started", "bug-popped", "round-complete", "game-complete"]) {
-    game.addEventListener(type, (e) => events.push({ type, detail: e.detail }));
+  for (const type of ["round-started", "animal-counted", "round-complete", "game-complete"]) {
+    game.addEventListener(type, (event) => events.push({ type, detail: event.detail }));
   }
   return events;
 }
@@ -26,76 +37,92 @@ test("start() emits round-started with first round", () => {
   const events = listen(game);
   game.start();
   assert.deepEqual(events, [
-    { type: "round-started", detail: { n: 1, bugs: MINI_ROUNDS[0].bugs } }
+    { type: "round-started", detail: { n: 1, round: MINI_ROUNDS[0], targets: MINI_ROUNDS[0].targets } }
   ]);
 });
 
-test("tapBug() on a present bug emits bug-popped with running count", () => {
+test("tapTarget() emits animal-counted with running count and total", () => {
   const game = createGame(MINI_ROUNDS);
   game.start();
   const events = listen(game);
-  game.tapBug("r1-b1");
-  assert.deepEqual(events.filter((e) => e.type === "bug-popped"), [
-    { type: "bug-popped", detail: { id: "r1-b1", count: 1 } }
+  game.tapTarget("r1-turtle-1");
+  assert.deepEqual(events.filter((event) => event.type === "animal-counted"), [
+    {
+      type: "animal-counted",
+      detail: {
+        id: "r1-turtle-1",
+        count: 1,
+        total: 1,
+        animal: "turtle",
+        round: MINI_ROUNDS[0]
+      }
+    }
   ]);
 });
 
-test("tapBug() is idempotent on the same bug id", () => {
+test("tapTarget() is idempotent on the same target id", () => {
   const game = createGame(MINI_ROUNDS);
   game.start();
   const events = listen(game);
-  game.tapBug("r1-b1");
-  game.tapBug("r1-b1");
-  game.tapBug("r1-b1");
-  assert.equal(events.filter((e) => e.type === "bug-popped").length, 1);
+  game.tapTarget("r1-turtle-1");
+  game.tapTarget("r1-turtle-1");
+  game.tapTarget("r1-turtle-1");
+  assert.equal(events.filter((event) => event.type === "animal-counted").length, 1);
 });
 
-test("tapBug() on an unknown id is a no-op", () => {
+test("tapTarget() on an unknown id is a no-op", () => {
   const game = createGame(MINI_ROUNDS);
   game.start();
   const events = listen(game);
-  game.tapBug("nonexistent");
+  game.tapTarget("missing");
   assert.deepEqual(events, []);
 });
 
-test("popping the last bug emits round-complete then advances to next round", () => {
+test("tapping the last target emits round-complete then advances to next round", () => {
   const game = createGame(MINI_ROUNDS);
   game.start();
   const events = listen(game);
-  game.tapBug("r1-b1");
+  game.tapTarget("r1-turtle-1");
   game.advanceRound();
-  const types = events.map((e) => e.type);
+  const types = events.map((event) => event.type);
   assert.ok(types.includes("round-complete"));
   assert.ok(types.includes("round-started"));
-  // round-complete must come before the next round-started
   assert.ok(types.indexOf("round-complete") < types.indexOf("round-started"));
+  assert.equal(events.findLast((event) => event.type === "round-started").detail.n, 2);
 });
 
-test("popping the last bug of the final round emits game-complete instead of advancing", () => {
+test("tapping during a completed round does nothing until advanceRound()", () => {
   const game = createGame(MINI_ROUNDS);
   game.start();
-  game.tapBug("r1-b1");
+  const events = listen(game);
+  game.tapTarget("r1-turtle-1");
+  game.tapTarget("r1-turtle-1");
+  assert.equal(events.filter((event) => event.type === "animal-counted").length, 1);
+});
+
+test("tapping the last target of the final round emits game-complete", () => {
+  const game = createGame(MINI_ROUNDS);
+  game.start();
+  game.tapTarget("r1-turtle-1");
   game.advanceRound();
   const events = listen(game);
-  game.tapBug("r2-b1");
-  game.tapBug("r2-b2");
+  game.tapTarget("r2-dolphin-1");
+  game.tapTarget("r2-dolphin-2");
   game.advanceRound();
-  const types = events.map((e) => e.type);
-  assert.ok(types.includes("game-complete"));
+  assert.ok(events.map((event) => event.type).includes("game-complete"));
 });
 
-test("game-complete loops back: next start() begins from round 1", () => {
+test("restart() begins from round 1 after completion", () => {
   const game = createGame(MINI_ROUNDS);
   game.start();
-  game.tapBug("r1-b1");
+  game.tapTarget("r1-turtle-1");
   game.advanceRound();
-  game.tapBug("r2-b1");
-  game.tapBug("r2-b2");
+  game.tapTarget("r2-dolphin-1");
+  game.tapTarget("r2-dolphin-2");
   game.advanceRound();
-  // Loop
   const events = listen(game);
   game.restart();
-  assert.deepEqual(events.filter((e) => e.type === "round-started"), [
-    { type: "round-started", detail: { n: 1, bugs: MINI_ROUNDS[0].bugs } }
+  assert.deepEqual(events.filter((event) => event.type === "round-started"), [
+    { type: "round-started", detail: { n: 1, round: MINI_ROUNDS[0], targets: MINI_ROUNDS[0].targets } }
   ]);
 });
