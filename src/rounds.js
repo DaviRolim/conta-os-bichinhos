@@ -1,112 +1,137 @@
 // src/rounds.js
-// Pure data. ROUNDS[i] is round number i+1 (so ROUNDS[0].n === 1).
-// Bug positions are normalized (0..1) within the tooth's render box.
-// Hand-tuned to avoid overlap (≥ 0.18 separation) and feel non-grid-like.
+// Pure sea-animal round data. ROUNDS[i] is round number i + 1.
+// Target positions are normalized (0..1) within the underwater stage.
 
-export const ROUNDS = [
+const ROUND_DEFS = [
   {
-    n: 1,
-    bugs: [
-      { id: "r1-b1", variant: "A", x: 0.50, y: 0.50 }
+    animal: "turtle",
+    label: "Turtle",
+    targets: [
+      { x: 0.50, y: 0.52, scale: 1.05, flip: false, rotate: -2 }
     ]
   },
   {
-    n: 2,
-    bugs: [
-      { id: "r2-b1", variant: "A", x: 0.35, y: 0.45 },
-      { id: "r2-b2", variant: "B", x: 0.65, y: 0.55 }
+    animal: "dolphin",
+    label: "Dolphin",
+    targets: [
+      { x: 0.36, y: 0.44, scale: 0.98, flip: false, rotate: -7 },
+      { x: 0.66, y: 0.57, scale: 1.08, flip: true, rotate: 5 }
     ]
   },
   {
-    n: 3,
-    bugs: [
-      { id: "r3-b1", variant: "A", x: 0.30, y: 0.40 },
-      { id: "r3-b2", variant: "B", x: 0.55, y: 0.60 },
-      { id: "r3-b3", variant: "C", x: 0.75, y: 0.40 }
+    animal: "fish",
+    label: "Fish",
+    targets: [
+      { x: 0.27, y: 0.42, scale: 0.88, flip: false, rotate: -5 },
+      { x: 0.53, y: 0.62, scale: 1.06, flip: true, rotate: 4 },
+      { x: 0.76, y: 0.38, scale: 0.96, flip: false, rotate: 8 }
     ]
   },
   {
-    n: 4,
-    bugs: [
-      { id: "r4-b1", variant: "A", x: 0.28, y: 0.38 },
-      { id: "r4-b2", variant: "B", x: 0.55, y: 0.32 },
-      { id: "r4-b3", variant: "C", x: 0.72, y: 0.55 },
-      { id: "r4-b4", variant: "A", x: 0.40, y: 0.65 }
+    animal: "crab",
+    label: "Crab",
+    targets: [
+      { x: 0.23, y: 0.63, scale: 0.94, flip: false, rotate: 6 },
+      { x: 0.45, y: 0.43, scale: 1.04, flip: true, rotate: -4 },
+      { x: 0.67, y: 0.66, scale: 0.98, flip: false, rotate: 3 },
+      { x: 0.82, y: 0.36, scale: 0.90, flip: true, rotate: -8 }
     ]
   },
   {
-    n: 5,
-    bugs: [
-      { id: "r5-b1", variant: "A", x: 0.25, y: 0.35 },
-      { id: "r5-b2", variant: "B", x: 0.50, y: 0.28 },
-      { id: "r5-b3", variant: "C", x: 0.75, y: 0.38 },
-      { id: "r5-b4", variant: "A", x: 0.35, y: 0.60 },
-      { id: "r5-b5", variant: "B", x: 0.65, y: 0.65 }
+    animal: "octopus",
+    label: "Octopus",
+    targets: [
+      { x: 0.20, y: 0.34, scale: 0.92, flip: false, rotate: -6 },
+      { x: 0.42, y: 0.57, scale: 1.12, flip: true, rotate: 4 },
+      { x: 0.58, y: 0.33, scale: 0.98, flip: false, rotate: 7 },
+      { x: 0.76, y: 0.60, scale: 1.06, flip: true, rotate: -3 },
+      { x: 0.88, y: 0.40, scale: 0.86, flip: false, rotate: 9 }
     ]
   },
   {
-    n: 6,
-    bugs: [
-      { id: "r6-b1", variant: "A", x: 0.22, y: 0.30 },
-      { id: "r6-b2", variant: "B", x: 0.48, y: 0.25 },
-      { id: "r6-b3", variant: "C", x: 0.74, y: 0.30 },
-      { id: "r6-b4", variant: "A", x: 0.30, y: 0.55 },
-      { id: "r6-b5", variant: "B", x: 0.55, y: 0.60 },
-      { id: "r6-b6", variant: "C", x: 0.78, y: 0.55 }
+    animal: "seahorse",
+    label: "Seahorse",
+    targets: [
+      { x: 0.16, y: 0.32, scale: 0.84, flip: false, rotate: -7 },
+      { x: 0.34, y: 0.55, scale: 1.00, flip: true, rotate: 5 },
+      { x: 0.50, y: 0.29, scale: 1.08, flip: false, rotate: -3 },
+      { x: 0.63, y: 0.67, scale: 0.92, flip: true, rotate: 8 },
+      { x: 0.77, y: 0.43, scale: 1.04, flip: false, rotate: -5 },
+      { x: 0.90, y: 0.71, scale: 0.88, flip: true, rotate: 6 }
     ]
   },
   {
-    n: 7,
-    bugs: [
-      { id: "r7-b1", variant: "A", x: 0.20, y: 0.28 },
-      { id: "r7-b2", variant: "B", x: 0.42, y: 0.22 },
-      { id: "r7-b3", variant: "C", x: 0.65, y: 0.25 },
-      { id: "r7-b4", variant: "A", x: 0.85, y: 0.40 },
-      { id: "r7-b5", variant: "B", x: 0.30, y: 0.55 },
-      { id: "r7-b6", variant: "C", x: 0.55, y: 0.60 },
-      { id: "r7-b7", variant: "A", x: 0.78, y: 0.65 }
+    animal: "whale",
+    label: "Whale",
+    targets: [
+      { x: 0.14, y: 0.30, scale: 0.82, flip: false, rotate: -4 },
+      { x: 0.29, y: 0.53, scale: 0.94, flip: true, rotate: 7 },
+      { x: 0.42, y: 0.27, scale: 1.12, flip: false, rotate: 3 },
+      { x: 0.55, y: 0.61, scale: 0.98, flip: true, rotate: -6 },
+      { x: 0.69, y: 0.37, scale: 1.06, flip: false, rotate: 8 },
+      { x: 0.82, y: 0.70, scale: 0.90, flip: true, rotate: -3 },
+      { x: 0.91, y: 0.47, scale: 0.78, flip: false, rotate: 5 }
     ]
   },
   {
-    n: 8,
-    bugs: [
-      { id: "r8-b1", variant: "A", x: 0.18, y: 0.25 },
-      { id: "r8-b2", variant: "B", x: 0.40, y: 0.20 },
-      { id: "r8-b3", variant: "C", x: 0.62, y: 0.22 },
-      { id: "r8-b4", variant: "A", x: 0.84, y: 0.30 },
-      { id: "r8-b5", variant: "B", x: 0.22, y: 0.50 },
-      { id: "r8-b6", variant: "C", x: 0.45, y: 0.55 },
-      { id: "r8-b7", variant: "A", x: 0.68, y: 0.50 },
-      { id: "r8-b8", variant: "B", x: 0.85, y: 0.65 }
+    animal: "starfish",
+    label: "Starfish",
+    targets: [
+      { x: 0.13, y: 0.30, scale: 0.82, flip: false, rotate: -9 },
+      { x: 0.25, y: 0.56, scale: 0.96, flip: true, rotate: 6 },
+      { x: 0.38, y: 0.36, scale: 0.88, flip: false, rotate: 10 },
+      { x: 0.49, y: 0.71, scale: 1.08, flip: true, rotate: -5 },
+      { x: 0.60, y: 0.28, scale: 0.94, flip: false, rotate: 4 },
+      { x: 0.72, y: 0.55, scale: 1.12, flip: true, rotate: -8 },
+      { x: 0.84, y: 0.36, scale: 0.86, flip: false, rotate: 7 },
+      { x: 0.91, y: 0.66, scale: 0.80, flip: true, rotate: -2 }
     ]
   },
   {
-    n: 9,
-    bugs: [
-      { id: "r9-b1", variant: "A", x: 0.18, y: 0.22 },
-      { id: "r9-b2", variant: "B", x: 0.38, y: 0.20 },
-      { id: "r9-b3", variant: "C", x: 0.58, y: 0.20 },
-      { id: "r9-b4", variant: "A", x: 0.78, y: 0.25 },
-      { id: "r9-b5", variant: "B", x: 0.20, y: 0.45 },
-      { id: "r9-b6", variant: "C", x: 0.42, y: 0.48 },
-      { id: "r9-b7", variant: "A", x: 0.65, y: 0.45 },
-      { id: "r9-b8", variant: "B", x: 0.86, y: 0.48 },
-      { id: "r9-b9", variant: "C", x: 0.50, y: 0.72 }
+    animal: "jellyfish",
+    label: "Jellyfish",
+    targets: [
+      { x: 0.12, y: 0.28, scale: 0.78, flip: false, rotate: -6 },
+      { x: 0.22, y: 0.51, scale: 0.92, flip: true, rotate: 5 },
+      { x: 0.34, y: 0.72, scale: 0.86, flip: false, rotate: -10 },
+      { x: 0.42, y: 0.35, scale: 1.08, flip: true, rotate: 8 },
+      { x: 0.55, y: 0.59, scale: 0.96, flip: false, rotate: -4 },
+      { x: 0.66, y: 0.28, scale: 1.14, flip: true, rotate: 3 },
+      { x: 0.75, y: 0.70, scale: 0.90, flip: false, rotate: 9 },
+      { x: 0.84, y: 0.47, scale: 1.00, flip: true, rotate: -7 },
+      { x: 0.93, y: 0.62, scale: 0.74, flip: false, rotate: 6 }
     ]
   },
   {
-    n: 10,
-    bugs: [
-      { id: "r10-b1",  variant: "A", x: 0.16, y: 0.20 },
-      { id: "r10-b2",  variant: "B", x: 0.36, y: 0.18 },
-      { id: "r10-b3",  variant: "C", x: 0.55, y: 0.18 },
-      { id: "r10-b4",  variant: "A", x: 0.74, y: 0.20 },
-      { id: "r10-b5",  variant: "B", x: 0.90, y: 0.30 },
-      { id: "r10-b6",  variant: "C", x: 0.20, y: 0.45 },
-      { id: "r10-b7",  variant: "A", x: 0.40, y: 0.48 },
-      { id: "r10-b8",  variant: "B", x: 0.62, y: 0.48 },
-      { id: "r10-b9",  variant: "C", x: 0.84, y: 0.50 },
-      { id: "r10-b10", variant: "A", x: 0.50, y: 0.74 }
+    animal: "shark",
+    label: "Shark",
+    targets: [
+      { x: 0.11, y: 0.27, scale: 0.76, flip: false, rotate: -7 },
+      { x: 0.20, y: 0.49, scale: 0.92, flip: true, rotate: 5 },
+      { x: 0.31, y: 0.70, scale: 0.84, flip: false, rotate: -9 },
+      { x: 0.39, y: 0.35, scale: 1.04, flip: true, rotate: 8 },
+      { x: 0.50, y: 0.57, scale: 1.16, flip: false, rotate: -4 },
+      { x: 0.61, y: 0.78, scale: 0.88, flip: true, rotate: 6 },
+      { x: 0.69, y: 0.31, scale: 1.08, flip: false, rotate: 4 },
+      { x: 0.78, y: 0.53, scale: 0.98, flip: true, rotate: -8 },
+      { x: 0.87, y: 0.74, scale: 0.82, flip: false, rotate: 9 },
+      { x: 0.93, y: 0.43, scale: 0.72, flip: true, rotate: -3 }
     ]
   }
 ];
+
+export const ROUNDS = ROUND_DEFS.map((round, index) => {
+  const n = index + 1;
+
+  return {
+    n,
+    count: n,
+    animal: round.animal,
+    label: round.label,
+    sprite: `assets/images/${round.animal}.png`,
+    targets: round.targets.map((target, targetIndex) => ({
+      id: `r${n}-${round.animal}-${targetIndex + 1}`,
+      ...target
+    }))
+  };
+});
