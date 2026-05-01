@@ -2,8 +2,8 @@
 
 A counting game for Davi's son **Natan** (2y4m, Portuguese-native, pre-reader). Tap sugar bugs sitting on a smiling tooth to "brush" them down a drain — each tap plays the next English number ("ONE!" through "TEN!") and floats up the matching numeral. Numbers 1–10 across 10 sequential rounds; finale at round 10 with confetti and the Safari animal squad.
 
-**Live:** https://davirolim94.github.io/conta-os-bichinhos/ (after Task 19)
-**Repo:** https://github.com/davirolim94/conta-os-bichinhos (after Task 19)
+**Live:** https://davirolim.github.io/conta-os-bichinhos/
+**Repo:** https://github.com/DaviRolim/conta-os-bichinhos
 **Game #4** in the planned 9-game series. Spec: `docs/superpowers/specs/2026-04-30-conta-os-bichinhos-design.md`.
 
 ## Audience
