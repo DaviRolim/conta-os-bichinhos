@@ -28,7 +28,7 @@ export const VOICEOVER_ROSTER = [
 ];
 
 export const SFX_PATHS = {
-  pop:      "assets/sounds/bubble-pop.mp3",
-  drain:    "assets/sounds/drain-swoosh.mp3",
-  confetti: "assets/sounds/confetti-cheer.mp3"
+  pop:      "assets/sounds/bubble-pop.wav",
+  drain:    "assets/sounds/drain-swoosh.wav",
+  confetti: "assets/sounds/confetti-cheer.wav"
 };
