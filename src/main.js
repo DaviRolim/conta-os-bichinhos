@@ -26,9 +26,9 @@ audio.preload([
   ...NUMBER_VOICE_PATHS,
   CHEER_AMAZING_PATH,
   CHEER_WOOHOO_PATH,
-  SFX_PATHS.pop,
-  SFX_PATHS.drain,
-  SFX_PATHS.confetti
+  SFX_PATHS.tap,
+  SFX_PATHS.round,
+  SFX_PATHS.finale
 ]);
 
 const game = createGame(ROUNDS);
@@ -39,37 +39,26 @@ createScene({
   audio,
   voiceRoster: { NUMBER_VOICE_PATHS, CHEER_AMAZING_PATH, CHEER_WOOHOO_PATH },
   sfxPaths: SFX_PATHS,
-  onTap: (id) => {
-    // Synchronous from the gesture event — required for iOS audio unlock.
-    // The number played is the current count + 1 (next bug).
-    // We don't know the count here without a peek; let scene compute it via the
-    // bug-popped event. Instead: dispatch the tap, then read the count from the
-    // event and play sound there.
-    // Simpler: tap → game.tapBug → game emits bug-popped → scene plays audio.
-    // But the gesture chain dies if audio.play is called from inside an event
-    // handler triggered by an event handler. Solution below.
-    handleTap(id);
-  }
+  onTap: (id) => handleTap(id)
 });
 
 // The synchronous-audio chain: we call audio.playSequence INSIDE the listener
-// for bug-popped, BUT bug-popped is dispatched synchronously by game.tapBug,
+// for animal-counted, BUT animal-counted is dispatched synchronously by game.tapTarget,
 // which is itself called synchronously from the pointerdown event in scene.js.
 // EventTarget.dispatchEvent is fully synchronous, so the gesture chain holds.
-game.addEventListener("bug-popped", (e) => {
-  const { count } = e.detail;
-  audio.playSequence([NUMBER_VOICE_PATHS[count - 1], SFX_PATHS.pop]);
+game.addEventListener("animal-counted", (event) => {
+  const { count } = event.detail;
+  audio.playSequence([NUMBER_VOICE_PATHS[count - 1], SFX_PATHS.tap]);
 });
 
 function handleTap(id) {
-  // game.tapBug synchronously emits bug-popped, which the listener above handles.
-  game.tapBug(id);
+  game.tapTarget(id);
 }
 
 // Start screen — single tap unlocks audio + starts the game.
 function startGame() {
   // Trigger an audio play to unlock iOS — silent if not yet loaded.
-  audio.playSequence([SFX_PATHS.pop]);
+  audio.playSequence([SFX_PATHS.tap]);
   startScreen.hidden = true;
   stage.hidden = false;
   game.start();
