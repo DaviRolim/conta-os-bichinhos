@@ -97,6 +97,9 @@ export function createScene({ root, game, audio, voiceRoster, sfxPaths, onTap })
         target.classList.remove("nudge");
         void target.offsetWidth;
         target.classList.add("nudge");
+        // Remove after the nudge animation completes so the idle bob+glow
+        // animations resume; otherwise .nudge sticks and overrides them.
+        setTimeout(() => target.classList.remove("nudge"), 800);
       }
       scheduleIdleNudge();
     }, IDLE_NUDGE_MS);

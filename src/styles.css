@@ -172,7 +172,7 @@ body {
 
 .animal {
   position: absolute;
-  width: clamp(92px, 18vmin, 168px);
+  width: clamp(140px, 26vmin, 260px);
   aspect-ratio: 1;
   border: 0;
   border-radius: 999px;
@@ -183,26 +183,32 @@ body {
   background-size: contain;
   cursor: pointer;
   outline: none;
-  padding: clamp(14px, 2.4vmin, 24px);
+  padding: clamp(6px, 1vmin, 12px);
   transform:
     translate(-50%, -50%)
     scaleX(var(--animal-flip, 1))
     rotate(var(--animal-rotate, 0deg))
     scale(var(--animal-scale, 1));
-  filter: drop-shadow(0 8px 10px rgba(0, 47, 74, 0.24));
-  animation: animal-bob 2.1s ease-in-out infinite;
+  filter:
+    drop-shadow(0 10px 14px rgba(0, 47, 74, 0.55))
+    drop-shadow(0 0 18px rgba(255, 235, 130, 0.85))
+    drop-shadow(0 0 36px rgba(255, 200, 80, 0.55));
+  animation:
+    animal-bob 2.1s ease-in-out infinite,
+    animal-glow 2.4s ease-in-out infinite;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 .animal::before {
+  /* Soft warm halo behind the sprite to make it pop against the busy reef. */
   content: "";
   position: absolute;
-  inset: clamp(10px, 1.8vmin, 18px);
-  background-image: inherit;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
+  inset: -10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 247, 180, 0.42) 28%, rgba(255, 220, 120, 0.18) 55%, transparent 75%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .animal::after {
@@ -239,6 +245,21 @@ body {
   }
   50% {
     transform: translate(-50%, calc(-50% - 8px)) scaleX(var(--animal-flip, 1)) rotate(var(--animal-rotate, 0deg)) scale(var(--animal-scale, 1));
+  }
+}
+
+@keyframes animal-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 10px 14px rgba(0, 47, 74, 0.55))
+      drop-shadow(0 0 16px rgba(255, 235, 130, 0.75))
+      drop-shadow(0 0 30px rgba(255, 200, 80, 0.45));
+  }
+  50% {
+    filter:
+      drop-shadow(0 10px 14px rgba(0, 47, 74, 0.6))
+      drop-shadow(0 0 26px rgba(255, 240, 150, 1))
+      drop-shadow(0 0 48px rgba(255, 200, 80, 0.7));
   }
 }
 
