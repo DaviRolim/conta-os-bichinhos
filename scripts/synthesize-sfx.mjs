@@ -51,19 +51,40 @@ function synthBubblePop() {
 }
 
 function synthDrainSwoosh() {
-  // 1.0 s: filtered noise that pitches down. "swoosh."
-  const duration = 1.0;
+  // 1.4 s ocean wave: build-up, crest with spray, retreat.
+  // - Cascaded one-pole low-pass on white noise gives warm "water" texture.
+  // - Cutoff sweeps up to crest then back down (the rushing motion).
+  // - Low-frequency rumble layer adds water-mass body.
+  // - High-passed noise burst at the crest is the spray.
+  const duration = 1.4;
   const N = Math.floor(SAMPLE_RATE * duration);
   const samples = new Float32Array(N);
-  // Crude IIR low-pass over white noise to make it less harsh.
-  let prev = 0;
+  let lp1 = 0, lp2 = 0, lp3 = 0;
   for (let i = 0; i < N; i++) {
     const t = i / SAMPLE_RATE;
-    const noise = Math.random() * 2 - 1;
-    const cutoff = 0.05 + 0.5 * Math.exp(-t * 2.5); // low-pass narrows over time
-    prev = prev + cutoff * (noise - prev);
-    const env = Math.sin(Math.PI * (t / duration)); // sin-shaped attack/release
-    samples[i] = 0.55 * env * prev;
+    const tn = t / duration;
+    const skew = Math.pow(tn, 0.85);
+    const env = Math.pow(Math.sin(Math.PI * skew), 1.5);
+    const cutoffHz = 350 + 2200 * Math.sin(Math.PI * tn);
+    const omega = 2 * Math.PI * cutoffHz / SAMPLE_RATE;
+    const alpha = omega / (omega + 1);
+    const w = Math.random() * 2 - 1;
+    lp1 += alpha * (w - lp1);
+    lp2 += alpha * (lp1 - lp2);
+    lp3 += alpha * (lp2 - lp3);
+    const spray = 0.18 * (w - lp1) * Math.exp(-Math.pow((tn - 0.45) * 4.2, 2));
+    const rumbleFreq = 55 + 12 * Math.sin(2 * Math.PI * 0.6 * t);
+    const rumble = 0.20 * Math.sin(2 * Math.PI * rumbleFreq * t);
+    samples[i] = 0.6 * env * (lp3 * 3.5 + spray + rumble);
+  }
+  let peak = 0;
+  for (let i = 0; i < N; i++) {
+    const a = Math.abs(samples[i]);
+    if (a > peak) peak = a;
+  }
+  if (peak > 0.97) {
+    const gain = 0.97 / peak;
+    for (let i = 0; i < N; i++) samples[i] *= gain;
   }
   return samples;
 }
