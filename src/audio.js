@@ -1,75 +1,59 @@
 export function createAudioSystem({ backend, clock, cooldownMs = 1800, sequenceGapMs = 950 }) {
+  // Per-src "warm" element kept alive so the file stays in browser cache.
   const cache = new Map();
-  let currentSrc = null;
-  let currentEl = null;
-  let lastPlayedAt = new Map();
-  let generation = 0;
+  // Per-src last-played timestamp for spam protection.
+  const lastPlayedAt = new Map();
 
-  function getElement(src) {
+  function ensureCached(src) {
     if (!cache.has(src)) {
       cache.set(src, backend.create(src));
     }
-    return cache.get(src);
+  }
+
+  // Always create a FRESH element for actual playback. This lets multiple
+  // sounds overlap freely (rapid toddler taps, voice + sfx, round-complete
+  // cheers landing on top of an in-flight bubble pop) instead of pausing
+  // each other.
+  function spawn(src) {
+    ensureCached(src);
+    return backend.create(src);
   }
 
   async function play(src) {
     const now = clock.now();
-    if (currentSrc === src) {
-      const last = lastPlayedAt.get(src) ?? -Infinity;
-      if (now - last < cooldownMs) {
-        return;
-      }
-    } else if (currentEl && currentEl.playing) {
-      currentEl.pause();
-    }
-
-    // Any new top-level play call cancels in-flight playSequence.
-    generation += 1;
-
-    const el = getElement(src);
-    el.currentTime = 0;
-    currentSrc = src;
-    currentEl = el;
+    const last = lastPlayedAt.get(src) ?? -Infinity;
+    if (now - last < cooldownMs) return;
     lastPlayedAt.set(src, now);
+
+    const el = spawn(src);
     try {
       await el.play();
     } catch (err) {
-      // Audio failures are intentionally swallowed.
-      // No error UI per spec section 3.5.
+      // Audio failures are intentionally swallowed (no error UI per spec 3.5).
     }
   }
 
   async function playSequence(srcs) {
-    const myGen = ++generation;
-    for (const src of srcs) {
-      if (myGen !== generation) return;
-      // Inline-play to keep the gesture chain on the FIRST clip (iOS).
+    for (let i = 0; i < srcs.length; i++) {
+      const src = srcs[i];
       const now = clock.now();
-      if (currentSrc === src) {
-        const last = lastPlayedAt.get(src) ?? -Infinity;
-        if (now - last < cooldownMs) {
-          return;
-        }
-      } else if (currentEl && currentEl.playing) {
-        currentEl.pause();
+      const last = lastPlayedAt.get(src) ?? -Infinity;
+      const onCooldown = now - last < cooldownMs;
+      if (!onCooldown) {
+        lastPlayedAt.set(src, now);
+        const el = spawn(src);
+        try {
+          await el.play();
+        } catch (err) {}
       }
-      const el = getElement(src);
-      el.currentTime = 0;
-      currentSrc = src;
-      currentEl = el;
-      lastPlayedAt.set(src, now);
-      try {
-        await el.play();
-      } catch (err) {}
-      if (myGen !== generation) return;
-      await new Promise((resolve) => setTimeout(resolve, sequenceGapMs));
+      if (i < srcs.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, sequenceGapMs));
+      }
     }
   }
 
   function preload(srcs) {
-    for (const src of srcs) {
-      getElement(src);
-    }
+    for (const src of srcs) ensureCached(src);
   }
 
   return { play, playSequence, preload };

@@ -67,7 +67,7 @@ test("same-source play() after cooldown plays again", async () => {
   assert.equal(backend.calls.filter((c) => c.op === "play").length, 2);
 });
 
-test("different-source play() interrupts current clip", async () => {
+test("different-source play() does NOT pause prior clip (overlapping is OK)", async () => {
   const backend = makeFakeBackend();
   const clock = makeClock();
   const audio = createAudioSystem({ backend, clock, cooldownMs: 1800 });
@@ -77,7 +77,7 @@ test("different-source play() interrupts current clip", async () => {
   const playOps = backend.calls.filter((c) => c.op === "play").map((c) => c.src);
   const pauseOps = backend.calls.filter((c) => c.op === "pause").map((c) => c.src);
   assert.deepEqual(playOps, ["voice/lion.mp3", "voice/zebra.mp3"]);
-  assert.deepEqual(pauseOps, ["voice/lion.mp3"]);
+  assert.deepEqual(pauseOps, [], "no pause — overlapping playback is intentional so toddler's rapid taps don't cut each other");
 });
 
 test("playSequence() queues two clips with a gap", async () => {
@@ -89,25 +89,19 @@ test("playSequence() queues two clips with a gap", async () => {
   assert.deepEqual(playSrcs, ["voice/lion.mp3", "sounds/lion-roar.mp3"]);
 });
 
-test("a new playSequence cancels in-flight playSequence", async () => {
+test("overlapping playSequence calls both complete independently (no cancellation)", async () => {
   const backend = makeFakeBackend();
   const clock = makeClock();
-  // Use a tiny gap so the test runs fast.
   const audio = createAudioSystem({ backend, clock, cooldownMs: 1800, sequenceGapMs: 5 });
 
-  // Start sequence A but don't await — let it start the first clip then defer.
   const aPromise = audio.playSequence(["voice/lion.mp3", "sounds/lion-roar.mp3"]);
-  // Small delay to let A's first clip start.
   await new Promise((r) => setTimeout(r, 1));
-  // Start sequence B while A is mid-sequence.
   const bPromise = audio.playSequence(["voice/zebra.mp3", "sounds/zebra-neigh.mp3"]);
   await Promise.all([aPromise, bPromise]);
 
   const playSrcs = backend.calls.filter((c) => c.op === "play").map((c) => c.src);
-  // We should have started A's first clip, then B's two clips.
-  // We must NOT have played A's second clip (the roar).
   assert.ok(playSrcs.includes("voice/lion.mp3"), "A's first clip should have started");
+  assert.ok(playSrcs.includes("sounds/lion-roar.mp3"), "A's second clip should still play — earlier sequences must not be cancelled");
   assert.ok(playSrcs.includes("voice/zebra.mp3"), "B's first clip should have started");
   assert.ok(playSrcs.includes("sounds/zebra-neigh.mp3"), "B's second clip should have played");
-  assert.ok(!playSrcs.includes("sounds/lion-roar.mp3"), "A's second clip should NOT play (cancelled)");
 });
