@@ -1,6 +1,6 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any precached or
 // dynamically-fetched asset.
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `conta-os-bichinhos-${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -10,19 +10,18 @@ const PRECACHE = [
   "./icon-192.png",
   "./icon-512.png",
   "./splash-1170x2532.png",
-  // Sprites
-  "./assets/images/tooth.png",
-  "./assets/images/brush.png",
-  "./assets/images/bathroom-bg.jpg",
-  "./assets/images/bug-a.png",
-  "./assets/images/bug-b.png",
-  "./assets/images/bug-c.png",
-  // Squad
-  "./assets/images/lion.png",
-  "./assets/images/zebra.png",
-  "./assets/images/hippo.png",
-  "./assets/images/giraffe.png",
-  "./assets/images/lemur.png",
+  // Ocean artwork
+  "./assets/images/ocean-bg.png",
+  "./assets/images/turtle.png",
+  "./assets/images/dolphin.png",
+  "./assets/images/fish.png",
+  "./assets/images/crab.png",
+  "./assets/images/octopus.png",
+  "./assets/images/seahorse.png",
+  "./assets/images/whale.png",
+  "./assets/images/starfish.png",
+  "./assets/images/jellyfish.png",
+  "./assets/images/shark.png",
   // Voice
   "./assets/voice/one.mp3",
   "./assets/voice/two.mp3",
@@ -36,7 +35,7 @@ const PRECACHE = [
   "./assets/voice/ten.mp3",
   "./assets/voice/amazing.mp3",
   "./assets/voice/woohoo.mp3",
-  // Sounds (WAV — synthesized, not MP3)
+  // Ocean sounds
   "./assets/sounds/bubble-pop.wav",
   "./assets/sounds/drain-swoosh.wav",
   "./assets/sounds/confetti-cheer.wav"
