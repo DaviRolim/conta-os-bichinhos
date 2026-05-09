@@ -6,6 +6,8 @@ import { floatNumeral } from "./numerals.js";
 const IDLE_NUDGE_MS = 6000;
 const FINALE_NUMERAL_DELAY_MS = 700;
 const FINALE_RESTART_DELAY_MS = 1200 + 11 * FINALE_NUMERAL_DELAY_MS + 2000;
+const ROUND_TRANSITION_AUDIO_DELAY_MS = 1000;
+const ROUND_ADVANCE_AFTER_TRANSITION_AUDIO_MS = 1800;
 
 export function createScene({ root, game, audio, voiceRoster, sfxPaths, onTap }) {
   const stage = root;
@@ -183,11 +185,13 @@ export function createScene({ root, game, audio, voiceRoster, sfxPaths, onTap })
     clearIdleTimer();
     setAnimalInputEnabled(false);
     celebration.hidden = false;
-    audio.playSequence([voiceRoster.CHEER_AMAZING_PATH, sfxPaths.round]);
     roundAdvanceTimer = setTimeout(() => {
-      roundAdvanceTimer = null;
-      game.advanceRound();
-    }, 1500);
+      audio.playSequence([voiceRoster.CHEER_AMAZING_PATH, sfxPaths.round]);
+      roundAdvanceTimer = setTimeout(() => {
+        roundAdvanceTimer = null;
+        game.advanceRound();
+      }, ROUND_ADVANCE_AFTER_TRANSITION_AUDIO_MS);
+    }, ROUND_TRANSITION_AUDIO_DELAY_MS);
   });
 
   game.addEventListener("game-complete", () => {
