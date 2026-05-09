@@ -29,6 +29,5 @@ export const VOICEOVER_ROSTER = [
 
 export const SFX_PATHS = {
   tap: "assets/sounds/bubble-pop.wav",
-  round: "assets/sounds/drain-swoosh.wav",
   finale: "assets/sounds/confetti-cheer.wav"
 };

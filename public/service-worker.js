@@ -1,6 +1,6 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any precached or
 // dynamically-fetched asset.
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE_NAME = `conta-os-bichinhos-${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -37,7 +37,6 @@ const PRECACHE = [
   "./assets/voice/woohoo.mp3",
   // Ocean sounds
   "./assets/sounds/bubble-pop.wav",
-  "./assets/sounds/drain-swoosh.wav",
   "./assets/sounds/confetti-cheer.wav"
 ];
 

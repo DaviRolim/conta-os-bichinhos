@@ -186,7 +186,7 @@ export function createScene({ root, game, audio, voiceRoster, sfxPaths, onTap })
     setAnimalInputEnabled(false);
     celebration.hidden = false;
     roundAdvanceTimer = setTimeout(() => {
-      audio.playSequence([voiceRoster.CHEER_AMAZING_PATH, sfxPaths.round]);
+      audio.playSequence([voiceRoster.CHEER_AMAZING_PATH]);
       roundAdvanceTimer = setTimeout(() => {
         roundAdvanceTimer = null;
         game.advanceRound();

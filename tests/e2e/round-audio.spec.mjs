@@ -37,4 +37,7 @@ test("round transition sounds wait until final number feedback is clear", async 
       )
     )
     .toBe(true);
+
+  const transitionPlays = await page.evaluate(() => window.__audioPlays);
+  expect(transitionPlays.some((play) => play.src.endsWith("assets/sounds/drain-swoosh.wav"))).toBe(false);
 });
