@@ -27,7 +27,6 @@ audio.preload([
   CHEER_AMAZING_PATH,
   CHEER_WOOHOO_PATH,
   SFX_PATHS.tap,
-  SFX_PATHS.round,
   SFX_PATHS.finale
 ]);
 

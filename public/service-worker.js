@@ -1,6 +1,6 @@
 // IMPORTANT: bump CACHE_VERSION on every deploy that changes any precached or
 // dynamically-fetched asset.
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const CACHE_NAME = `conta-os-bichinhos-${CACHE_VERSION}`;
 
 const PRECACHE = [
