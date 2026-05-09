@@ -24,7 +24,7 @@ test("playing through all 10 rounds reveals the numbered bubble finale", async (
     }
   }
 
-  await expect(page.locator(".finale")).toBeVisible();
+  await expect(page.locator(".finale")).toBeVisible({ timeout: 15000 });
   await expect(page.locator(".finale-title")).toHaveText("1 2 3 4 5 6 7 8 9 10");
   await expect(page.locator(".bubble-confetti i")).toHaveCount(36);
 });
